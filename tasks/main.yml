@@ -1,0 +1,28 @@
+---
+# tasks for installing lapce on Ubuntu 22.04
+- name: Download and install lapce binary
+  ansible.builtin.unarchive:
+    src: https://github.com/lapce/lapce/releases/latest/download/Lapce-linux.tar.gz
+    remote_src: true
+    dest: /usr/bin
+
+- name: Get logo for lapce launcher icon
+  ansible.builtin.get_url:
+    url: https://github.com/lapce/lapce/blob/4ba0a9e54bcdbb536b10000b8a9e986fc20ee33b/extra/images/logo.png
+    dest: /usr/share/pixmaps/dev.lapce.lapce.png
+    mode: '644'
+    checksum: md5:dca7d444edece3006ec30dd96785ad8f
+
+- name: Get desktop file for lapce launcher
+  ansible.builtin.get_url:
+    url: https://github.com/lapce/lapce/blob/4ba0a9e54bcdbb536b10000b8a9e986fc20ee33b/extra/linux/dev.lapce.lapce.desktop
+    dest: /usr/share/applications/dev.lapce.lapce.desktop
+    mode: '644'
+    checksum: md5:1d2a1aea7a895ab2732586a0994c919f
+
+- name: Get metainfo file for lapce launcher
+  ansible.builtin.get_url:
+    url: hhttps://github.com/lapce/lapce/blob/4ba0a9e54bcdbb536b10000b8a9e986fc20ee33b/extra/linux/dev.lapce.lapce.metainfo.xml
+    dest: /usr/share/metainfo/dev.lapce.lapce.metainfo.xml
+    mode: '644'
+    checksum: md5:9faa0df26488143d28291b98eaf629ce
