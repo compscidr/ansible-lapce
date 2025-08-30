@@ -1,0 +1,14 @@
+# Ansible runtime directories
+.ansible/
+
+# Molecule runtime directories  
+.molecule/
+.cache/
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
