@@ -5,3 +5,19 @@
 
 A simple role to install the Lapce IDE
 https://github.com/lapce/lapce
+
+## Testing
+
+This role includes molecule tests to verify functionality. To run the tests locally:
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install molecule molecule-docker
+
+# Run molecule tests
+molecule test
+```

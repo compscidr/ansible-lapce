@@ -1,0 +1,46 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Verify lapce binary is installed
+      ansible.builtin.command: /usr/bin/lapce --version
+      register: lapce_version_result
+      changed_when: false
+
+    - name: Show lapce version
+      ansible.builtin.debug:
+        var: lapce_version_result.stdout
+
+    - name: Verify lapce desktop file exists
+      ansible.builtin.stat:
+        path: /usr/share/applications/dev.lapce.lapce.desktop
+      register: desktop_file_stat
+
+    - name: Assert desktop file exists
+      ansible.builtin.assert:
+        that:
+          - desktop_file_stat.stat.exists
+        fail_msg: "Desktop file does not exist"
+
+    - name: Verify lapce logo exists
+      ansible.builtin.stat:
+        path: /usr/share/pixmaps/dev.lapce.lapce.png
+      register: logo_file_stat
+
+    - name: Assert logo file exists
+      ansible.builtin.assert:
+        that:
+          - logo_file_stat.stat.exists
+        fail_msg: "Logo file does not exist"
+
+    - name: Verify lapce metainfo file exists
+      ansible.builtin.stat:
+        path: /usr/share/metainfo/dev.lapce.lapce.metainfo.xml
+      register: metainfo_file_stat
+
+    - name: Assert metainfo file exists
+      ansible.builtin.assert:
+        that:
+          - metainfo_file_stat.stat.exists
+        fail_msg: "Metainfo file does not exist"
