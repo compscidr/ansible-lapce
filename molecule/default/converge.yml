@@ -4,6 +4,71 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Skip lapce installation due to network restrictions in CI
-      ansible.builtin.debug:
-        msg: "Skipping actual lapce installation in CI environment. Files are mocked in prepare step."
+    - name: Test network connectivity
+      ansible.builtin.uri:
+        url: https://github.com
+        method: HEAD
+        timeout: 10
+      register: network_check
+      ignore_errors: true
+
+    - name: Install lapce role (when network is available)
+      when: network_check is succeeded
+      block:
+        - name: Include lapce tasks
+          ansible.builtin.include_tasks: ../../tasks/main.yml
+
+    - name: Create fallback mock files when network is not available
+      when: network_check is failed
+      block:
+        - name: Create directories for testing
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+            mode: '0755'
+          loop:
+            - /usr/share/applications
+            - /usr/share/pixmaps
+            - /usr/share/metainfo
+
+        - name: Create mock lapce binary for testing
+          ansible.builtin.copy:
+            content: |
+              #!/bin/bash
+              echo "Lapce v0.4.0 (mock)"
+            dest: /usr/bin/lapce
+            mode: '0755'
+
+        - name: Create mock desktop file for testing
+          ansible.builtin.copy:
+            content: |
+              [Desktop Entry]
+              Name=Lapce
+              Comment=Lightning-fast and Powerful Code Editor
+              Exec=lapce %F
+              Icon=dev.lapce.lapce
+              Terminal=false
+              Type=Application
+              Categories=Development;IDE;
+              MimeType=text/plain;
+              StartupWMClass=lapce
+            dest: /usr/share/applications/dev.lapce.lapce.desktop
+            mode: '0644'
+
+        - name: Create mock logo file for testing
+          ansible.builtin.copy:
+            content: "PNG mock content"
+            dest: /usr/share/pixmaps/dev.lapce.lapce.png
+            mode: '0644'
+
+        - name: Create mock metainfo file for testing
+          ansible.builtin.copy:
+            content: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <component type="desktop-application">
+                <id>dev.lapce.lapce</id>
+                <name>Lapce</name>
+                <summary>Lightning-fast and Powerful Code Editor</summary>
+              </component>
+            dest: /usr/share/metainfo/dev.lapce.lapce.metainfo.xml
+            mode: '0644'
