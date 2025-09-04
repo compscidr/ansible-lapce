@@ -11,6 +11,10 @@ https://github.com/lapce/lapce
 This role includes molecule tests to verify functionality. To run the tests locally:
 
 ```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
 # Install dependencies
 pip install molecule molecule-docker
 
