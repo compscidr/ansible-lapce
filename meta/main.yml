@@ -11,7 +11,6 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - bionic # 18.04 LTS
         - focal # 20.04 LTS
         - jammy # 22.04 LTS
         - noble  # 24.04 LTS
