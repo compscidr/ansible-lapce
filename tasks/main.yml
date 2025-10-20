@@ -4,7 +4,7 @@
   become: true
   tags: lapce
   ansible.builtin.unarchive:
-    src: https://github.com/lapce/lapce/releases/latest/download/lapce-linux-amd64.tar.gz
+    src: "https://github.com/lapce/lapce/releases/download/{{ lapce_version }}/lapce-linux-amd64.tar.gz"
     remote_src: true
     extra_opts: ['--strip-components=1', '--show-stored-names']
     dest: /usr/bin
@@ -13,25 +13,25 @@
   become: true
   tags: lapce
   ansible.builtin.get_url:
-    url: https://github.com/lapce/lapce/blob/master/extra/images/logo.png?raw=true
+    url: "https://github.com/lapce/lapce/blob/{{ lapce_version }}/extra/images/logo.png?raw=true"
     dest: /usr/share/pixmaps/dev.lapce.lapce.png
     mode: '644'
-    checksum: md5:dca7d444edece3006ec30dd96785ad8f
+    checksum: "{{ lapce_logo_checksum }}"
 
 - name: Get desktop file for lapce launcher
   become: true
   tags: lapce
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/lapce/lapce/refs/heads/master/extra/linux/dev.lapce.lapce.desktop
+    url: "https://raw.githubusercontent.com/lapce/lapce/refs/tags/{{ lapce_version }}/extra/linux/dev.lapce.lapce.desktop"
     dest: /usr/share/applications/dev.lapce.lapce.desktop
     mode: '644'
-    checksum: md5:1d2a1aea7a895ab2732586a0994c919f
+    checksum: "{{ lapce_desktop_checksum }}"
 
 - name: Get metainfo file for lapce launcher
   become: true
   tags: lapce
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/lapce/lapce/refs/heads/master/extra/linux/dev.lapce.lapce.metainfo.xml
+    url: "https://raw.githubusercontent.com/lapce/lapce/refs/tags/{{ lapce_version }}/extra/linux/dev.lapce.lapce.metainfo.xml"
     dest: /usr/share/metainfo/dev.lapce.lapce.metainfo.xml
     mode: '644'
-    checksum: md5:941c04f3e244cab798eb634e1c0e38d7
+    checksum: "{{ lapce_metainfo_checksum }}"
