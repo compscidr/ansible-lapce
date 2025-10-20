@@ -1,5 +1,17 @@
 ---
 # tasks for installing lapce on Ubuntu 22.04
+- name: Ensure required directories exist
+  become: true
+  tags: lapce
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /usr/share/pixmaps
+    - /usr/share/applications
+    - /usr/share/metainfo
+
 - name: Download and install lapce binary
   become: true
   tags: lapce
