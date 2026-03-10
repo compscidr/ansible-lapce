@@ -1,0 +1,64 @@
+name: Check for Lapce Updates
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Weekly on Monday at 9am UTC
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  check-update:
+    name: Check for new Lapce release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v5
+
+      - name: Get current version
+        id: current
+        run: |
+          version=$(grep 'lapce_version:' defaults/main.yml | sed 's/.*"\(.*\)"/\1/')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Get latest release
+        id: latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(gh api repos/lapce/lapce/releases/latest --jq '.tag_name')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Update files if new version available
+        if: steps.current.outputs.version != steps.latest.outputs.version
+        env:
+          NEW_VERSION: ${{ steps.latest.outputs.version }}
+        run: |
+          echo "Updating from ${{ steps.current.outputs.version }} to ${NEW_VERSION}"
+
+          # Update version in defaults
+          sed -i "s/lapce_version: \".*\"/lapce_version: \"${NEW_VERSION}\"/" defaults/main.yml
+
+          # Download updated static files
+          curl -sL "https://github.com/lapce/lapce/blob/${NEW_VERSION}/extra/images/logo.png?raw=true" \
+            -o files/dev.lapce.lapce.png
+
+          curl -sL "https://raw.githubusercontent.com/lapce/lapce/refs/tags/${NEW_VERSION}/extra/linux/dev.lapce.lapce.desktop" \
+            -o files/dev.lapce.lapce.desktop
+
+          curl -sL "https://raw.githubusercontent.com/lapce/lapce/refs/tags/${NEW_VERSION}/extra/linux/dev.lapce.lapce.metainfo.xml" \
+            -o files/dev.lapce.lapce.metainfo.xml
+
+      - name: Create Pull Request
+        if: steps.current.outputs.version != steps.latest.outputs.version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "Update lapce to ${{ steps.latest.outputs.version }}"
+          branch: auto/update-lapce
+          title: "Update lapce to ${{ steps.latest.outputs.version }}"
+          body: |
+            Automated update of lapce from `${{ steps.current.outputs.version }}` to `${{ steps.latest.outputs.version }}`.
+
+            Changes:
+            - Updated `lapce_version` in defaults/main.yml
+            - Updated bundled static files (logo, desktop, metainfo)
+
+            Release notes: https://github.com/lapce/lapce/releases/tag/${{ steps.latest.outputs.version }}
